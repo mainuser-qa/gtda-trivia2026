@@ -1,0 +1,2718 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="https://poki.com//favicon.ico">
+  <title>GTDA Trivia</title>
+
+  <style>
+    :root {
+      --bg: #03071c;
+      --panel: #070d2c;
+      --blue: #0758d8;
+      --blue2: #4b8fff;
+      --white: #f7f9ff;
+      --muted: #c6cce0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: var(--white);
+
+      background:
+        radial-gradient(ellipse at 72% 0%, oklab(40.228% -0.00898 -0.20657 / 0.55), transparent 35%),
+        radial-gradient(ellipse at 8% 90%, rgba(1, 13, 29, 0.18), transparent 32%),
+        var(--bg);
+
+      background-size: 115% 115%;
+      background-position: 0% 0%;
+      animation: ambientBackground 16s ease-in-out infinite alternate;
+
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    @keyframes ambientBackground {
+      0% {
+        background-position: 0% 0%;
+      }
+
+      50% {
+        background-position: 50% 30%;
+      }
+
+      100% {
+        background-position: 100% 60%;
+      }
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(100%, 560px);
+      text-align: center;
+    }
+
+    .brand {
+      font-size: 62px;
+      font-weight: 700;
+      letter-spacing: -1.8px;
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .brand span {
+      background: linear-gradient(100deg, #1764d9, #dceaff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      margin: 7px 0 30px;
+      color: #e0e5f4;
+      font-size: .94rem;
+    }
+
+    /* TRANSICIONES ENTRE PANTALLAS */
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+      animation: screenEnter .65s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    @keyframes screenEnter {
+      from {
+        opacity: 0;
+        transform: translateY(18px) scale(.985);
+        filter: blur(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+      }
+    }
+
+
+    /* APARICIÓN PROGRESIVA DE ELEMENTOS */
+
+    .screen.active>* {
+      animation: elementEnter .65s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .screen.active>*:nth-child(1) {
+      animation-delay: .05s;
+    }
+
+    .screen.active>*:nth-child(2) {
+      animation-delay: .12s;
+    }
+
+    .screen.active>*:nth-child(3) {
+      animation-delay: .19s;
+    }
+
+    .screen.active>*:nth-child(4) {
+      animation-delay: .26s;
+    }
+
+    .screen.active>*:nth-child(5) {
+      animation-delay: .33s;
+    }
+
+    .screen.active>*:nth-child(6) {
+      animation-delay: .40s;
+    }
+
+    .screen.active>*:nth-child(7) {
+      animation-delay: .47s;
+    }
+
+    @keyframes elementEnter {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+
+    /* ENTRADA ESCALONADA DE RESPUESTAS */
+
+    .answers .answer {
+      animation: answerEnter .5s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .answers .answer:nth-child(1) {
+      animation-delay: .15s;
+    }
+
+    .answers .answer:nth-child(2) {
+      animation-delay: .23s;
+    }
+
+    .answers .answer:nth-child(3) {
+      animation-delay: .31s;
+    }
+
+    .back-btn:disabled {
+
+      background: rgba(0, 75, 206, .25);
+
+      border: 1px solid rgba(75, 143, 255, .15);
+
+      color: #FFFFFF;
+
+      cursor: not-allowed;
+
+      opacity: 1;
+    }
+
+    @keyframes answerEnter {
+      from {
+        opacity: 0;
+        transform: translateX(-12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* CONTENEDOR DE NIVELES */
+
+    .levels {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 11px;
+      margin: 0 auto 26px;
+      padding: 22px 0;
+      width: 100%;
+    }
+
+    /* BOTONES DE DIFICULTAD */
+
+    .level {
+      position: relative;
+      isolation: isolate;
+      min-height: 250px;
+      border: 1px solid rgba(42, 100, 224, .34);
+      border-radius: 15px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+
+      background: linear-gradient(180deg,
+          #03071c 0%,
+          #03071c 55%,
+          #004BCE 100%);
+
+      background-size: 100% 150%;
+      background-position: 50% 100%;
+
+      transition: .2s;
+    }
+
+    .level:hover {
+      transform: translateY(-3px);
+      border-color: #3485ff;
+    }
+
+    /* BORDE CON DEGRADADO ANIMADO */
+
+    .level.selected::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 2px;
+
+      background: linear-gradient(120deg,
+          #004BCE,
+          #0071FF,
+          #8AD8FF,
+          #0071FF,
+          #004BCE);
+
+      background-size: 300% 300%;
+      animation: blueBorderMove 5s ease infinite;
+
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+
+      pointer-events: none;
+    }
+
+    @keyframes blueBorderMove {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    /* ANIMACIÓN DEL DEGRADADO */
+
+    .level[data-level="facil"] {
+      animation: gradientMove 6s ease-in-out infinite alternate;
+    }
+
+    .level[data-level="medio"] {
+      animation: gradientMove 4s ease-in-out infinite alternate;
+    }
+
+    .level[data-level="dificil"] {
+      animation: gradientMove 3s ease-in-out infinite alternate;
+    }
+
+    .level.selected {
+      border: 2px solid #004BCE;
+    }
+
+    @keyframes gradientMove {
+      0% {
+        background-position: 0% 5%;
+      }
+
+      100% {
+        background-position: 50% 80%;
+      }
+    }
+
+    .dots {
+      height: 14px;
+      color: #3e8cff;
+      letter-spacing: 3px;
+      font-size: 17px;
+      margin-bottom: 9px;
+      display: none;
+    }
+
+    .confetti {
+
+      background: #4b8fff;
+    }
+
+    .level-icon {
+
+      width: 100px;
+      height: 85px;
+
+      display: block;
+
+      margin-bottom: 12px;
+
+      transition: transform .25s ease;
+    }
+
+    .level:hover .level-icon {
+
+      transform: scale(1.05);
+    }
+
+    /* BARRA DE PROGRESO */
+
+    .progress-container {
+      width: 100%;
+      margin: -12px auto 20px;
+      text-align: left;
+      margin-top: 50px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: .82rem;
+      color: #c6cce0;
+      margin-bottom: 8px;
+    }
+
+    #progressCount {
+      color: #4b8fff;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 7px;
+      background: rgba(75, 143, 255, .15);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #004BCE, #4b8fff);
+      border-radius: inherit;
+      transition: width .5s ease;
+    }
+
+    /* BOTONES PRINCIPALES */
+
+    .primary,
+    .secondary {
+      width: 100%;
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 18px;
+      font-weight: 700;
+      color: white;
+      transition: .2s;
+    }
+
+    .primary {
+      background: #004BCE;
+      color: #FFFFFF;
+      border: none;
+      margin-bottom: 14px;
+    }
+
+    .primary:hover:not(:disabled) {
+      filter: brightness(1.12);
+      transform: translateY(-1px);
+    }
+
+    .primary:disabled {
+      opacity: .35;
+      cursor: not-allowed;
+    }
+
+    .secondary {
+      background: #0c124c;
+    }
+
+    .secondary:hover {
+      background: #151e70;
+    }
+
+    .secondary:disabled {
+      background: #071b4b;
+      color: #6a7797;
+      border: 1px solid #061741;
+      opacity: 0.6;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* PUNTAJE */
+
+    .score {
+      font-size: 2rem;
+      font-weight: 800;
+      margin: 22px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 11px;
+    }
+
+    .trophy {
+      width: 1.8rem;
+      height: 1.8rem;
+      display: block;
+      flex-shrink: 0;
+      position: relative;
+      top: 2px;
+    }
+
+    /* Pantalla de Preguntas */
+
+    .quiz-meta {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      color: #dbe4ff;
+      font-size: .9rem;
+      margin: 20px 0 25px;
+    }
+
+    .question {
+      font-size: 1.2rem;
+      line-height: 1.5;
+      margin: 0 auto 25px;
+      max-width: 510px;
+    }
+
+    .answers {
+      display: grid;
+      gap: 11px;
+    }
+
+    .answer {
+      border: 1px solid rgba(117, 143, 199, .55);
+      border-radius: 999px;
+      background: transparent;
+      color: white;
+      text-align: center;
+      transition: .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 56px;
+      padding: 12px 52px 12px 16px;
+      position: relative;
+    }
+
+    .answer::before {
+      content: "";
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, .15);
+      background: rgba(255, 255, 255, .05);
+    }
+
+    .back-btn::before,
+    .back-btn::after {
+
+      display: none;
+    }
+
+    .answer:hover:not(:disabled) {
+      border-color: #3685ff;
+      background: rgba(0, 76, 190, .22);
+    }
+
+    .answer:disabled {
+      cursor: default;
+      opacity: .75;
+    }
+
+    .answer.correct {
+      background: rgba(0, 90, 45, .45);
+
+      border: 1px solid #00c26e;
+
+      color: #ffffff;
+
+      position: relative;
+
+      box-shadow:
+        0 0 0 1px rgba(0, 194, 110, .25),
+        0 8px 20px rgba(0, 194, 110, .15);
+      opacity: 1;
+    }
+
+    .answer.wrong {
+      background: rgba(115, 0, 32, .45);
+
+      border: 1px solid #d9395b;
+
+      color: #ffffff;
+
+      position: relative;
+
+      box-shadow:
+        0 0 0 1px rgba(217, 57, 91, .25),
+        0 8px 20px rgba(217, 57, 91, .15);
+      opacity: 1;
+    }
+
+    .answer.correct::after {
+      content: "✓";
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #0aa86f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .answer.wrong::after {
+      content: "✕";
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #c72f4e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .answer.correct,
+    .answer.wrong {
+
+      animation: revealAnswer .35s ease;
+    }
+
+    @keyframes revealAnswer {
+
+      from {
+
+        transform: scale(.98);
+
+        opacity: .6;
+      }
+
+      to {
+
+        transform: scale(1);
+
+        opacity: 1;
+      }
+    }
+
+    @keyframes needleSwing {
+
+      0% {
+        transform: rotate(-4deg);
+      }
+
+      50% {
+        transform: rotate(8deg);
+      }
+
+      100% {
+        transform: rotate(-4deg);
+      }
+
+    }
+
+    .quiz-score {
+      margin-top: 24px;
+      font-size: 1.7rem;
+    }
+
+    #celebration {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .spark {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation:
+        sparkle 2s ease-out forwards;
+    }
+
+    .needle {
+
+      transform-box: fill-box;
+
+      transform-origin: center bottom;
+
+      animation: needleSwing 3s ease-in-out infinite;
+    }
+
+    @keyframes sparkle {
+
+      0% {
+
+        opacity: 0;
+
+        transform:
+          translateY(0) scale(.2);
+      }
+
+      20% {
+
+        opacity: 1;
+      }
+
+      100% {
+
+        opacity: 0;
+
+        transform:
+          translateY(-140px) scale(0);
+      }
+
+    }
+
+    #celebrationLayer {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #finished {
+
+      position: relative;
+    }
+
+    .celebration-particle {
+
+      position: absolute;
+
+      width: 10px;
+      height: 10px;
+
+      border-radius: 50%;
+
+      opacity: 0;
+
+      animation:
+        floatParticle 5s linear forwards;
+    }
+
+    @keyframes floatParticle {
+
+      0% {
+
+        opacity: 0;
+
+        transform:
+          translateY(50px) scale(.2);
+      }
+
+      10% {
+
+        opacity: 1;
+      }
+
+      100% {
+
+        opacity: 0;
+
+        transform:
+          translateY(-500px) scale(1);
+      }
+    }
+
+    /* Modales */
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 2, 17, .76);
+      display: none;
+      place-items: center;
+      padding: 20px;
+      z-index: 5;
+    }
+
+    .overlay.show {
+      display: grid;
+      animation: overlayEnter .3s ease both;
+    }
+
+    .result-icon {
+      width: 140px;
+      height: 140px;
+      display: block;
+      margin: 35px auto 25px;
+      color: #f7f9ff;
+    }
+
+    .result-label {
+      text-align: center;
+      font-size: .95rem;
+      color: #dbe4ff;
+      margin-bottom: 10px;
+    }
+
+    .final-score {
+      font-size: 3rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    @keyframes overlayEnter {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .modal {
+      width: min(100%, 370px);
+      padding: 30px 25px 25px;
+      border: 1px solid #174fe0;
+      border-radius: 20px;
+      background: radial-gradient(ellipse at 50% 0%,
+          #15236f,
+          #050922 72%);
+
+      box-shadow: 0 20px 70px #0009;
+      text-align: center;
+
+      animation: modalEnter .45s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .end-modal {
+      width: min(100%, 520px);
+      padding: 55px 48px 38px;
+    }
+
+    .end-title {
+      font-size: 2.1rem;
+      font-weight: 800;
+      margin: 0 0 18px;
+    }
+
+    .end-subtitle {
+      color: #dbe4ff;
+      font-size: 1.15rem;
+      margin-bottom: 45px;
+    }
+
+    .end-score-number {
+
+      font-size: 8rem;
+
+      line-height: 1;
+
+      font-weight: 500;
+
+      color: #f7f9ff;
+
+      letter-spacing: -2px;
+
+      margin-bottom: 22px;
+
+    }
+
+
+    .end-score-label {
+      font-size: 1.8rem;
+      color: #e2e8fb;
+      margin-bottom: 40px;
+    }
+
+    .end-modal .primary {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 18px;
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    @keyframes scoreAppear {
+      0% {
+        opacity: 0;
+        transform:
+          scale(.6) translateY(20px);
+      }
+
+      100% {
+        opacity: 1;
+        transform:
+          scale(1) translateY(0);
+      }
+    }
+
+    .feedback-icon {
+
+      display: flex;
+
+      justify-content: center;
+
+      align-items: center;
+
+      margin: 22px auto;
+    }
+
+    .feedback-svg {
+
+      width: 120px;
+
+      height: 120px;
+
+      display: block;
+    }
+
+    .difficulty-summary {
+
+      display: inline-block;
+
+      padding: 10px 18px;
+
+      border-radius: 999px;
+
+      background: rgba(75, 143, 255, .15);
+
+      margin-bottom: 25px;
+
+      color: #dbe4ff;
+
+      font-weight: 600;
+    }
+
+    .summary-value {
+
+      color: #4B8FFF;
+
+      font-weight: 700;
+    }
+
+    .correct-counter {
+
+      position: fixed;
+
+      top: 18px;
+
+      right: 20px;
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 10px;
+
+      padding: 12px 18px;
+
+      border-radius: 999px;
+
+      background: rgba(24, 44, 120, .55);
+
+      backdrop-filter: blur(8px);
+
+      color: #f7f9ff;
+
+      font-size: 1rem;
+
+      font-weight: 500;
+
+      z-index: 100;
+    }
+
+    .feedback-icon {
+
+      width: 120px;
+      height: 120px;
+
+      margin: 25px auto;
+
+      border-radius: 50%;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: white;
+
+      font-size: 4rem;
+
+      font-weight: 700;
+    }
+
+    .feedback-icon.success {
+
+      animation:
+        successPop .7s ease;
+    }
+
+    @keyframes successPop {
+
+      0% {
+        transform: scale(.4) rotate(-20deg);
+        opacity: 0;
+      }
+
+      60% {
+        transform: scale(1.18) rotate(4deg);
+      }
+
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    .feedback-icon.success {
+
+      background: #098652;
+
+      box-shadow:
+        0 0 40px rgba(9, 134, 82, .25);
+    }
+
+    .feedback-icon.error {
+
+      background: #a52444;
+
+      box-shadow:
+        0 0 40px rgba(165, 36, 68, .25);
+    }
+
+    .feedback-icon.error {
+
+      animation:
+        wrongShake .55s ease;
+    }
+
+    @keyframes wrongShake {
+
+      0% {
+        transform: translateX(0);
+      }
+
+      20% {
+        transform: translateX(-8px);
+      }
+
+      40% {
+        transform: translateX(8px);
+      }
+
+      60% {
+        transform: translateX(-6px);
+      }
+
+      80% {
+        transform: translateX(6px);
+      }
+
+      100% {
+        transform: translateX(0);
+      }
+    }
+
+    .points {
+
+      font-size: 1.4rem;
+
+      font-weight: 700;
+
+      color: #f7f9ff;
+
+      margin: 18px 0 28px;
+    }
+
+    @keyframes modalEnter {
+      from {
+        opacity: 0;
+        transform: translateY(18px) scale(.94);
+        filter: blur(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+      }
+    }
+
+    .modal h2 {
+      font-size: 1.45rem;
+      margin: 0 0 6px;
+    }
+
+    .modal p {
+      color: #e0e6fa;
+      margin: 5px 0 10px;
+      font-size: .94rem;
+    }
+
+    .modal .points {
+      font-size: .9rem;
+      margin: 14px 0 18px;
+    }
+
+    .modal .primary {
+      margin: 0;
+      padding: 10px;
+    }
+
+    .final-score {
+      font-size: 2.6rem;
+      font-weight: 800;
+      margin: 18px 0;
+    }
+
+    .note {
+      font-size: .78rem;
+      color: #8e9abe;
+      margin-top: 22px;
+    }
+
+    /* LOGOTIPO */
+
+    .logo-footer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin-top: 85px;
+      padding-bottom: 12px;
+    }
+
+    .logo-footer svg {
+      display: block;
+      width: 112px;
+      height: auto;
+      opacity: 0.99;
+    }
+
+    /* BOTÓN REGRESAR */
+
+    .back-btn {
+      width: 100%;
+      padding: 10px 18px;
+      background: #004BCE;
+      border-color: #004BCE;
+      color: #fff;
+      margin-top: 20px;
+    }
+
+    .back-btn:hover:not(:disabled) {
+      background: #055EDD;
+      border-color: #055EDD;
+    }
+
+    /* DISPOSITIVOS MÓVILES */
+
+    @media (max-width: 430px) {
+      body {
+        padding: 18px;
+      }
+
+      .levels {
+        gap: 7px;
+      }
+
+      .level {
+        min-height: 155px;
+        border-radius: 12px;
+      }
+
+      .level strong {
+        font-size: 1.60rem;
+        margin: 0;
+      }
+
+      .level small {
+        font-size: .9rem;
+        color: #e4eaff;
+      }
+
+      .question {
+        font-size: 1.08rem;
+      }
+
+      .score {
+        font-size: 1.75rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+      }
+
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Trofeo -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+    <symbol id="icon-trophy" viewBox="0 0 210.47 239.99">
+
+      <path fill="#f7f9ff"
+        d="m198.79,16.71c-9.11.27-18.23.06-27.69.06-.45-3.89-1.01-7.72-1.31-11.57C169.5,1.51,168,0,164,0c-39.32.14-78.65.13-117.97.01-3.69-.01-5.12,1.34-5.43,4.84-.36,4.17-1.07,8.32-1.53,11.76-11.04,0-21.27.09-31.49-.04-5.09-.07-8.1,2.04-7.51,7.23,1.66,14.59,2.28,29.49,5.81,43.64,5.33,21.38,19.86,34.8,41.61,39.8,4.38,1.01,8.9,1.38,13.26,2.46,2.21.55,4.68,1.56,6.18,3.16,7.45,7.9,15.9,14.05,26.33,17.45,1.34.44,3.15,2.96,2.91,4.14-2.42,11.97-5.08,23.9-8.07,35.74-.38,1.51-3.15,3.56-4.69,3.47-9.71-.59-16.39,2.77-18.24,13.06-5.08,0-9.59.29-14.06-.08-5.53-.45-7.63,1.36-7.4,7.22.44,11.62.13,23.26.13,34.8-1.18.34-1.75.66-2.31.64-4.19-.18-7.49-.1-7.19,5.95.32,6.58,4.8,4.39,7.89,4.41,24.38.14,48.75.08,73.12.08,18.44,0,36.87-.09,55.3.06,3.84.03,5.26-.97,5.49-5.11.46-7.88-5.72-4.23-9.67-6.1,0-11.78-.26-23.44.12-35.07.18-5.56-1.84-7.34-7.1-6.86-3.65.33-7.39.29-11.04-.07-1.42-.13-3.57-1.33-3.93-2.49-2.47-8.11-8.23-10.84-16.02-10.2-3.71.31-5.95-1.09-6.75-4.55-2.64-11.51-5.32-23.02-7.52-34.63-.26-1.34,2.09-4.15,3.77-4.72,9.56-3.28,17.27-9.06,24.42-16.02,2.24-2.18,5.66-3.95,8.74-4.35,32.31-4.22,49.85-20.08,55.97-51.97,1.88-9.81,2.58-19.88,3.21-29.87.65-10.43-.86-11.39-11.55-11.08ZM20.32,74.09c-7.15-14.21-8.81-29.5-8.96-45.49h27.38c1,23.92,5.06,46.87,17.35,68.92-16.35-2.64-28.63-9.26-35.77-23.43Zm105.88,13.28l-20.97-11.03-20.97,11.03,4-23.36-16.96-16.54,23.44-3.4,10.49-21.25,10.49,21.25,23.45,3.4-16.97,16.54,4,23.36Zm31.54,9.67c-.76.16-1.55.14-3.25.28,11.68-21.61,16.23-44.4,16.98-68.55h26.71c7.17,29.16-12.25,62.17-40.44,68.27Z" />
+    </symbol>
+  </svg>
+
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+
+    <!-- Cara Triste -->
+    <symbol id="icon-sad" viewBox="0 0 253 253.39">
+      <path fill="currentColor"
+        d="m126.63,253.39C56.68,253.5,0,196.85,0,126.82,0,56.63,56.3.13,126.38,0c69.97-.13,126.55,56.42,126.62,126.56.07,70.12-56.31,126.71-126.37,126.82Zm.21-12.88c62.61-.1,113.76-51.47,113.65-114.14-.11-62.54-51.7-113.77-114.31-113.51-62.77.26-113.84,51.56-113.64,114.17.19,62.63,51.51,113.58,114.31,113.48Z" />
+      <path fill="currentColor"
+        d="m125.81,135.63c32.08.77,57.78,18.78,66.05,45.34.86,2.75,1.95,5.88,1.38,8.5-.52,2.4-2.93,5.84-4.88,6.11-2.54.35-5.54-1.81-8.14-3.26-.73-.41-.72-2.12-1.07-3.23-7.88-24.51-26.93-38.65-52.22-38.76-25.84-.11-45.04,13.81-53.02,38.79-1.57,4.93-4.49,8.74-9.17,6.4-2.68-1.34-5.07-7.08-4.56-10.36,3.6-23.15,28.04-44.67,54.11-48.41,4.33-.62,8.72-.85,11.5-1.12Z" />
+      <path fill="currentColor"
+        d="m82.1,78.72c7.19.09,12.77,5.7,12.77,12.83,0,7.11-5.66,12.93-12.67,13.05-7.3.12-13.5-6.14-13.28-13.41.21-7.05,6.04-12.56,13.18-12.47Z" />
+      <path fill="currentColor"
+        d="m184.1,91.91c-.21,6.93-6.24,12.77-13.12,12.7-7.41-.07-13.22-6.32-12.8-13.76.41-7.1,6.31-12.43,13.45-12.14,7.06.29,12.68,6.24,12.47,13.21Z" />
+    </symbol>
+
+  </svg>
+
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+
+    <!-- Satisfactorio -->
+
+    <symbol id="icon-success" viewBox="0 0 117 117">
+
+      <circle fill="#087a50" cx="58.5" cy="58.5" r="58.5" />
+
+      <path fill="#f7f9ff"
+        d="m48.85,65.31c9.24-9.25,18.22-18.23,27.11-27.13,2.17-2.17,5.68-2.17,7.85,0,.03.03.05.05.08.08,2.17,2.17,2.17,5.69,0,7.86-11.66,11.62-23.45,23.35-35.21,35.06-2.17,2.16-5.68,2.16-7.85-.01-5.67-5.69-11.5-11.52-17.34-17.37-2.19-2.19-2.16-5.75.06-7.91l.27-.26c2.19-2.13,5.7-2.08,7.84.11,3.02,3.1,6.11,6.27,9.27,9.52,2.16,2.22,5.72,2.24,7.91.05Z" />
+
+    </symbol>
+
+    <!-- Error -->
+
+    <symbol id="icon-error" viewBox="0 0 117.95 117.95">
+
+      <circle fill="#8e243b" cx="58.98" cy="58.98" r="58.98" />
+
+      <path fill="#f7f9ff"
+        d="m72.87,82.25c-4.25-4.29-8.53-8.62-12.86-13-4.33,4.38-8.65,8.75-12.93,13.08-2.39,2.42-6.3,2.44-8.72.03h0c-2.43-2.42-2.41-6.36.04-8.76l13.23-12.93-13.65-13.28c-2.46-2.4-2.49-6.35-.05-8.77l.28-.28c2.41-2.4,6.32-2.39,8.71.03l13.08,13.22h0s12.96-13.23,12.96-13.23c2.41-2.46,6.37-2.46,8.78,0l.11.11c2.39,2.43,2.34,6.34-.1,8.72l-13.06,12.72,13.36,13.09c2.43,2.38,2.47,6.29.08,8.72l-.51.52c-2.41,2.44-6.34,2.44-8.75,0Z" />
+
+    </symbol>
+
+  </svg>
+
+  <main class="app">
+
+    <!-- Pantalla Principal -->
+
+    <div class="correct-counter">
+      Respuestas correctas
+      <span id="correctCounter">
+        0
+      </span>
+    </div>
+
+    <section id="home" class="screen active">
+
+      <h1 class="brand">GTDA <span>Trivia</span></h1>
+
+      <p class="subtitle">
+        Elige el nivel de dificultad para tus preguntas.
+      </p>
+
+      <!-- Progress Bar-->
+
+      <div class="progress-container">
+
+        <div class="progress-info">
+          <span>Progreso del desafío</span>
+          <span id="progressCount">0/4</span>
+        </div>
+
+        <div class="progress-track">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+
+      </div>
+
+      <!-- Niveles de Dificultad -->
+
+      <div class="levels">
+
+        <button class="level" data-level="facil">
+
+          <!-- SVG 1 -->
+
+          <svg class="level-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96.09 81.57">
+
+            <defs>
+              <style>
+                .cls-1 {
+                  fill: #4b8fff;
+                }
+
+                .cls-1,
+                .cls-2,
+                .cls-3 {
+                  stroke-width: 0px;
+                }
+
+                .cls-2 {
+                  fill: #f7f9ff;
+                }
+
+                .cls-3 {
+                  fill: #004bce;
+                }
+              </style>
+            </defs>
+            <path class="cls-1"
+              d="m74.52,21.52c-2.26-1.87-4.45-3.82-6.99-5.34-9.46-5.64-19.47-7.01-30.08-3.98-5.69,1.63-10.61,4.57-14.94,8.56-.3.28-.66.51-.99.76-2.51-2.45-4.84-5.09-7.52-7.36,3.71-3.89,8.01-6.96,12.83-9.31C32.25,2.19,37.98.72,44.02.19c9.2-.8,17.85.94,26.04,5.08,4.14,2.1,7.9,4.78,11.21,8.06.23.23.4.51.6.76-2.45,2.47-4.9,4.95-7.36,7.42Z" />
+            <path class="cls-1"
+              d="m74.52,21.52c2.45-2.47,4.9-4.95,7.36-7.42,2.24,1.75,3.86,4.05,5.49,6.32,4.65,6.47,7.35,13.75,8.35,21.62.89,6.95.22,13.79-1.92,20.49-2.21,6.93-5.81,13.02-10.74,18.35-.78.85-1.29.96-2.12.09-1.87-1.97-3.79-3.88-5.74-5.77-.6-.58-.68-.92-.07-1.57,5.6-5.93,9.01-12.96,9.97-21.05,1.08-9.11-.91-17.54-5.98-25.25-1.37-2.08-3.15-3.81-4.6-5.8Z" />
+            <path class="cls-3"
+              d="m13.99,14.16c2.68,2.28,5.01,4.91,7.52,7.36-2.24,2.56-4.41,5.16-6.07,8.15-3.51,6.31-5.12,13.05-4.73,20.27-1.16.7-2.72.19-4.04,1.28,1.62.37,2.97.68,4.32.99.21,4.48,1.7,8.59,3.64,12.55,1.62,3.3,3.73,6.26,6.29,8.91.56.57.56.91-.02,1.47-1.98,1.92-3.95,3.86-5.84,5.86-.79.83-1.31.68-2-.07C5.71,72.98,1.33,63.69.26,52.88c-1.22-12.36,1.9-23.54,9.21-33.55,1.35-1.85,2.83-3.61,4.52-5.17Z" />
+            <path class="cls-2 needle"
+              d="m10.99,52.22c-1.35-.31-2.69-.62-4.32-.99,1.33-1.09,2.89-.59,4.04-1.28,4.17-.8,8.34-1.63,12.52-2.4,7.49-1.37,14.96-2.91,22.5-3.99,3.2-.46,6.08,0,8.23,2.67,2.06,2.55,2.32,6,.74,8.78-1.49,2.61-4.79,4.16-7.9,3.75-7.5-1-14.92-2.49-22.35-3.91-4.5-.86-8.98-1.75-13.48-2.63Zm41.32-1.1c-.05-2.63-1.86-4.38-4.46-4.32-2.33.05-4.27,2.06-4.21,4.35.06,2.4,2.19,4.39,4.6,4.31,2.18-.07,4.11-2.13,4.07-4.34Z" />
+
+          </svg>
+
+          <strong>Fácil</strong>
+
+          <small>2 Puntos</small>
+
+        </button>
+
+        <button class="level" data-level="medio">
+
+          <svg class="level-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96.07 81.78">
+
+            <defs>
+              <style>
+                .cls-1 {
+                  fill: #4b8fff;
+                }
+
+                .cls-1,
+                .cls-2,
+                .cls-3 {
+                  stroke-width: 0px;
+                }
+
+                .cls-2 {
+                  fill: #f7f9ff;
+                }
+
+                .cls-3 {
+                  fill: #004bce;
+                }
+              </style>
+            </defs>
+            <path class="cls-3"
+              d="m46.88,10.61c-2.25.44-4.54.48-6.79.98-6.2,1.38-11.66,4.17-16.49,8.25-.66.56-1.16,1.36-2.11,1.52-.43-.12-.67-.49-.97-.78-2.17-2.11-4.2-4.36-6.51-6.33,4.06-4.54,9.06-7.77,14.58-10.19C36.05.79,43.88-.48,52.01.16c5.98.47,11.62,2.11,17.04,4.69,4.27,2.03,8.03,4.71,11.52,7.83.52.46.93,1.04,1.39,1.56-.65.69-1.26,1.42-1.94,2.08-1.83,1.79-3.67,3.55-5.51,5.32-.94-.21-1.33-1.11-1.98-1.67-5.13-4.46-11.03-7.27-17.67-8.5-1.87-.35-3.75-.81-5.69-.53-.47-1.66-.46-3.44-1.2-5.4-.41,1.92-.75,3.49-1.08,5.07Z" />
+            <path class="cls-1"
+              d="m74.5,21.64c1.84-1.77,3.69-3.53,5.51-5.32.68-.66,1.3-1.38,1.94-2.08,3.33,2.94,5.84,6.53,8.01,10.36,3.01,5.3,4.89,11.01,5.67,17.05,1.16,8.96,0,17.62-3.7,25.9-2.23,5-5.19,9.5-8.98,13.46-.73.76-1.2.91-2.01.03-1.81-1.95-3.74-3.81-5.66-5.66-.65-.63-.8-1.01-.08-1.79,7.09-7.57,10.48-16.61,10.16-26.94-.26-8.2-3.09-15.53-8.23-21.94-.84-1.05-1.76-2.05-2.64-3.07Z" />
+            <path class="cls-1"
+              d="m14.02,14.25c2.3,1.97,4.34,4.22,6.51,6.33.3.29.53.66.97.78-.41,1.31-1.57,2.04-2.37,3.04-11.01,13.72-11.37,32.13-.86,46.28.78,1.05,1.65,2.03,2.56,2.97.56.57.73.94.07,1.59-2.09,2.02-4.14,4.07-6.15,6.16-.76.79-1.11.17-1.55-.29-6.08-6.44-10.25-13.93-12.04-22.61-3.05-14.77-.07-28.22,9.21-40.19,1.12-1.45,2.32-2.81,3.66-4.05Z" />
+            <path class="cls-2 needle"
+              d="m46.88,10.61c.34-1.57.67-3.15,1.08-5.07.74,1.96.73,3.74,1.2,5.4.89,5.01,1.79,10.02,2.66,15.03,1.4,8.05,2.94,16.08,3.87,24.21.36,3.13-.82,5.72-3.49,7.45-2.77,1.8-5.66,1.81-8.42-.03-2.64-1.76-3.8-4.35-3.42-7.48,1.24-10.2,3.2-20.28,4.98-30.4.53-3.03,1.03-6.07,1.54-9.11Zm.95,36.27c-2.34.06-4.17,1.99-4.13,4.35.04,2.39,2.11,4.4,4.45,4.31,2.38-.09,4.27-2.15,4.18-4.56-.1-2.47-1.95-4.17-4.5-4.1Z" />
+
+          </svg>
+
+          <strong>Medio</strong>
+
+          <small>5 Puntos</small>
+
+        </button>
+
+        <button class="level" data-level="dificil">
+
+          <svg class="level-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96.09 81.68">
+
+            <defs>
+              <style>
+                .cls-1 {
+                  fill: #4b8fff;
+                }
+
+                .cls-1,
+                .cls-2,
+                .cls-3 {
+                  stroke-width: 0px;
+                }
+
+                .cls-2 {
+                  fill: #f7f9ff;
+                }
+
+                .cls-3 {
+                  fill: #004bce;
+                }
+              </style>
+            </defs>
+            <path class="cls-1"
+              d="m74.63,21.59c-2-1.53-3.84-3.25-5.95-4.65-4.68-3.11-9.78-5.02-15.33-5.81-5.27-.75-10.43-.43-15.55,1.05-5.81,1.68-10.91,4.56-15.3,8.73-.27.26-.5.57-.9.63-2.44-2.47-4.88-4.93-7.32-7.4,1.27-1.9,3.12-3.21,4.9-4.53C28.28,2.83,38.56-.37,49.87.03c8.07.29,15.64,2.45,22.63,6.62,2.86,1.71,5.47,3.73,8,5.87.52.44,1.13.86,1.32,1.6-.1.36-.22.67-.54.93-2.39,2-4.48,4.31-6.65,6.53Z" />
+            <path class="cls-1"
+              d="m14.28,14.14c2.44,2.47,4.88,4.93,7.32,7.4-3.13,3.43-5.87,7.12-7.72,11.43-4.3,10.03-4.29,20.06-.03,30.08,1.69,3.99,4.12,7.54,7.12,10.66.54.56.63.86.04,1.43-2.05,1.98-4.08,4-6.06,6.04-.63.65-1,.67-1.65-.02-6.53-6.91-10.72-15.02-12.46-24.37-1.92-10.36-.51-20.3,4-29.78,2.2-4.63,5.22-8.73,8.76-12.44.18-.19.45-.29.69-.44Z" />
+            <path class="cls-3"
+              d="m74.63,21.59c2.17-2.23,4.27-4.53,6.65-6.53.32-.27.44-.57.54-.93,1.76,1.15,2.93,2.86,4.18,4.48,5.72,7.39,9.01,15.72,9.88,25.05.88,9.55-.98,18.52-5.38,26.96-2.01,3.86-4.58,7.38-7.62,10.54-.63.66-1.1.69-1.74.04-1.96-2.01-3.94-4-5.95-5.96-.6-.59-.57-1.01.02-1.62,4.85-5.05,7.93-11.05,9.42-17.87.25-1.14.52-2.28.46-3.46,1.62-.33,3.24-.66,4.86-1,0-.07,0-.15,0-.22-1.51-.36-3.02-.73-4.53-1.09.07-4.5-.32-8.94-1.74-13.26-1.69-5.13-4.31-9.7-7.9-13.72-.4-.45-.77-.93-1.15-1.4Z" />
+            <path class="cls-2 needle"
+              d="m85.42,49.96c1.51.36,3.02.73,4.53,1.09,0,.07,0,.15,0,.22-1.62.33-3.24.66-4.86,1-10.7,2.11-21.4,4.23-32.17,6.02-1.96.33-3.93.82-5.97.49-4.22-.7-6.95-4.23-6.55-8.53.36-3.9,3.82-6.94,7.91-6.78,3.56.14,7.04.88,10.53,1.54,8.53,1.61,17.06,3.27,25.59,4.9.32.06.65.05.98.07Zm-37.33-3.13c-2.37,0-4.37,1.89-4.39,4.17-.02,2.43,2,4.51,4.41,4.53,2.25.02,4.34-2.14,4.31-4.47-.03-2.32-1.99-4.22-4.34-4.23Z" />
+
+          </svg>
+
+          <strong>Difícil</strong>
+
+          <small>8 Puntos</small>
+
+        </button>
+
+      </div>
+
+      <button id="startBtn" class="primary" disabled>
+        Comenzar Trivia&nbsp;
+      </button>
+
+      <button id="finishBtn" class="secondary">
+        Finalizar Juego
+      </button>
+
+      <div class="score">
+
+        <svg class="trophy" aria-label="Trofeo" role="img">
+          <use href="#icon-trophy"></use>
+        </svg>
+
+        <span id="homeScore">0 Puntos</span>
+
+      </div>
+
+    </section>
+
+    <!-- Pantalla Preguntas -->
+
+    <section id="quiz" class="screen">
+
+      <h1 class="brand">GTDA <span>Trivia</span></h1>
+
+      <p class="subtitle">¡Pon a prueba tus conocimientos!</p>
+
+      <div class="quiz-meta">
+        <span id="levelDots">● ●</span>
+        <span id="questionCount">Pregunta 1</span>
+      </div>
+
+      <p id="questionText" class="question"></p>
+
+      <div id="answers" class="answers"></div>
+
+      <button id="backBtn" class="answer back-btn">
+        Regresar
+      </button>
+
+      <div class="score quiz-score">
+
+        <span class="trophy">
+          <svg class="trophy" aria-label="Trofeo" role="img">
+            <use href="#icon-trophy"></use>
+          </svg>
+        </span>
+
+        <span id="quizScore">0 Puntos</span>
+
+      </div>
+
+    </section>
+
+    <!-- Pantalla Final -->
+
+    <section id="finished" class="screen">
+      <div id="celebration"></div>
+      <div id="celebrationLayer"></div>
+      <h1 class="brand">
+        GTDA <span>Trivia</span>
+      </h1>
+
+      <p class="subtitle">
+        Partida finalizada. ¡Gracias por jugar!
+      </p>
+
+      <div id="difficultySummary" class="difficulty-summary">
+
+        F 0 • M 0 • D 0
+
+      </div>
+
+      <div id="resultIconContainer">
+
+        <svg id="resultIcon" class="result-icon">
+          <use href="#icon-trophy"></use>
+        </svg>
+
+      </div>
+
+      <div class="result-label">
+        Tu puntaje final:
+      </div>
+
+      <div class="final-score" id="finalScore">
+        0 Puntos
+      </div>
+
+      <button id="newGameBtn" class="primary">
+        ¡Volver a jugar!
+      </button>
+
+    </section>
+
+    <p class="note">
+      Selecciona un nivel y responde para acumular puntos.
+    </p>
+
+    <!-- Logo BCIE -->
+
+    <footer class="logo-footer">
+
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140.98 35.11" role="img" aria-label="Logo institucional">
+
+        <g fill="#fff">
+
+          <path d="m0,.87v4.19s.03,0,.04.01L4.24.87H0Z" />
+          <path d="M8.01.87L3.03,5.86c1.33.41,2.63.89,3.89,1.43L13.34.87h-5.32Z" />
+          <path d="m17.11.87l-7.64,7.64c1.15.6,2.27,1.26,3.35,1.97L22.43.87h-5.32Z" />
+          <path d="m26.2.87l-11.18,11.18c1,.77,1.96,1.58,2.88,2.44L31.53.87h-5.32Z" />
+          <path d="m33.41,2.75l-13.62,13.62c.86.92,1.67,1.88,2.44,2.88l11.18-11.18V2.75Z" />
+          <path d="m33.41,11.85l-9.61,9.61c.71,1.08,1.37,2.2,1.97,3.35l7.64-7.64v-5.32Z" />
+          <path d="m33.41,20.94l-6.42,6.42c.55,1.26,1.02,2.56,1.43,3.89l4.99-4.99v-5.32Z" />
+          <path d="m33.41,34.28v-4.24l-4.2,4.2s0,.03,0,.04h4.19Z" />
+
+          <path
+            d="m67.51,24.52c0,1.82-.36,3.35-1.08,4.59-.72,1.24-1.68,2.24-2.87,2.99-1.19.75-2.55,1.29-4.07,1.62-1.52.33-3.08.49-4.68.49h-13.27V.89h13.27c1.29,0,2.6.13,3.95.4,1.35.27,2.57.72,3.67,1.36,1.1.64,1.99,1.51,2.68,2.61.69,1.1,1.04,2.49,1.04,4.19,0,1.85-.5,3.38-1.51,4.59-1,1.21-2.32,2.08-3.95,2.61v.09c.94.16,1.83.45,2.66.87.83.42,1.55.96,2.16,1.62.61.66,1.1,1.43,1.46,2.31.36.88.54,1.87.54,2.97Zm-9.13-13.98c0-1.13-.43-1.95-1.29-2.47-.86-.52-2.14-.78-3.84-.78h-3.95v6.87h4.33c1.51,0,2.67-.31,3.51-.92.83-.61,1.25-1.51,1.25-2.71Zm1.08,13.23c0-1.38-.52-2.34-1.55-2.87-1.04-.53-2.42-.8-4.14-.8h-4.47v7.62h4.52c.63,0,1.28-.05,1.95-.16.67-.11,1.29-.31,1.84-.59.55-.28,1-.68,1.34-1.2.34-.52.52-1.18.52-2Z" />
+
+          <path
+            d="m95.56,33.63c-2.17.99-4.66,1.48-7.48,1.48-2.57,0-4.95-.42-7.13-1.27-2.18-.85-4.07-2.05-5.67-3.6s-2.86-3.41-3.77-5.58c-.91-2.16-1.36-4.55-1.36-7.15s.46-5.08,1.39-7.25c.93-2.17,2.2-4.01,3.84-5.53,1.63-1.52,3.55-2.69,5.74-3.51,2.2-.82,4.57-1.22,7.11-1.22,2.35,0,4.67.42,6.94,1.25,2.27.83,4.12,2.05,5.53,3.65l-5.46,5.46c-.75-1.04-1.74-1.8-2.96-2.31-1.22-.5-2.48-.75-3.77-.75-1.41,0-2.71.26-3.88.78-1.18.52-2.19,1.23-3.04,2.14-.85.91-1.51,1.98-1.98,3.22-.47,1.24-.71,2.6-.71,4.07s.24,2.89.71,4.14c.47,1.26,1.12,2.33,1.95,3.22.83.89,1.83,1.59,2.99,2.09,1.16.5,2.43.75,3.81.75,1.6,0,3-.31,4.19-.94,1.19-.63,2.15-1.44,2.87-2.45l5.6,5.27c-1.48,1.69-3.29,3.04-5.46,4.02Z" />
+
+          <path d="m104.45,34.22V.89h8.1v33.32h-8.1Z" />
+
+          <path d="m117.73,34.22V.89h22.4v6.78h-14.64v6.31h13.84v6.45h-13.84v6.92h15.48v6.87h-23.25Z" />
+
+        </g>
+      </svg>
+
+    </footer>
+
+  </main>
+
+  <!-- Modal de Respuesta -->
+
+  <div id="feedback" class="overlay" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
+
+    <div class="modal">
+
+      <h2 id="feedbackTitle">
+        ¡Felicidades!
+      </h2>
+
+      <p id="feedbackText">
+        ¡Tu respuesta fue correcta!
+      </p>
+
+      <div id="feedbackIcon" class="feedback-icon">
+
+        <svg id="feedbackSvg" class="feedback-svg">
+
+          <use href="#icon-success"></use>
+
+        </svg>
+
+      </div>
+
+      <div id="feedbackPoints" class="points">
+
+        +5 Puntos
+
+      </div>
+
+      <button id="continueBtn" class="primary">
+
+        Continuar
+
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- Modal de Finalización -->
+
+  <div id="endModal" class="overlay" role="dialog" aria-modal="true">
+
+    <div class="modal end-modal">
+
+      <h2 class="end-title">
+
+        ¡Juego Finalizado!
+
+      </h2>
+
+      <p class="end-subtitle">
+
+        Este es tu puntaje acumulado:
+
+      </p>
+
+      <div id="endScoreNumber" class="end-score-number">
+
+        0
+
+      </div>
+
+      <div class="end-score-label">
+
+        Puntos
+
+      </div>
+
+      <button id="closeEndBtn" class="primary">
+
+        Continuar
+
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    // ===============================================================================================================
+    // Repositorio de Preguntas
+    // ===============================================================================================================
+
+    const questionBank = {
+
+      // Preguntas de nivel: Fácil 2 Puntos cada una.
+
+      facil: [
+        {
+          q: "¿Qué es AccessHub?",
+          a: [
+            "La plataforma del BCIE que centralizará la administración de accesos, roles y permisos",
+            "Una plataforma para administrar proyectos financieros",
+            "Una herramienta para crear reportes institucionales"
+          ],
+          c: 0
+        },
+        {
+          q: "¿Por qué se está creando AccessHub?",
+          a: [
+            "Para reemplazar todas las aplicaciones institucionales",
+            "Para automatizar y fortalecer la gestión de accesos",
+            "Para administrar únicamente contraseñas"
+          ],
+          c: 1
+        },
+        {
+          q: "¿AccessHub reemplaza a los aplicativos que utilizo?",
+          a: [
+            "Sí, reemplazará todos los aplicativos",
+            "Sí, pero solamente los aplicativos financieros",
+            "No, los aplicativos se integrarán a AccessHub para administrar sus accesos y permisos"
+          ],
+          c: 2
+        },
+        {
+          q: "¿Voy a poder solicitar accesos por medio de AccessHub?",
+          a: [
+            "Sí, permitirá gestionar solicitudes y aprobaciones de acceso",
+            "No, los accesos solamente podrán solicitarse por correo",
+            "No, AccessHub únicamente servirá para consultar permisos"
+          ],
+          c: 0
+        },
+        {
+          q: "¿Qué herramienta de Microsoft se presenta como parte de la iniciativa Democratizar IA?",
+          a: [
+            "Microsoft Teams",
+            "Microsoft Copilot",
+            "Microsoft Planner"
+          ],
+          c: 1
+        },
+        {
+          q: "¿Cuántos usuarios activos de Copilot Chat se muestran en la presentación?",
+          a: [
+            "257 usuarios",
+            "457 usuarios",
+            "357 usuarios"
+          ],
+          c: 2
+        },
+        {
+          q: "¿Cuál de las iniciativas está enfocada en Búsqueda & Conocimiento?",
+          a: [
+            "AtenIA",
+            "RPA Factory",
+            "IA Strategy"
+          ],
+          c: 0
+        },
+        {
+          q: "¿Cuál es el nombre de la iniciativa relacionada con la automatización mediante bots?",
+          a: [
+            "AtenIA",
+            "RPA Factory",
+            "Democratizar IA"
+          ],
+          c: 1
+        },
+        {
+          q: "¿Cuál de las siguientes actividades se realiza en el módulo de Cuentas por Pagar (AP)?",
+          a: [
+            "Elaboración del presupuesto institucional",
+            "Administración de activos fijos",
+            "Registro de facturas y gestión de pagos a proveedores"
+          ],
+          c: 2
+        },
+        {
+          q: "¿Cuál es la función principal del módulo de Compras (PO)?",
+          a: [
+            "Gestionar órdenes de compra de bienes y servicios",
+            "Administrar las cuentas bancarias",
+            "Registrar la depreciación de activos"
+          ],
+          c: 0
+        },
+        {
+          q: "¿Qué módulo permite llevar el control de los bienes institucionales, como mobiliario, vehículos y equipos?",
+          a: [
+            "Cuentas por Cobrar (AR)",
+            "Activos Fijos (FA)",
+            "Contabilidad General (GL)"
+          ],
+          c: 1
+        },
+        {
+          q: "¿Cuál es la plataforma BPM a la que se migrarán las funcionalidades del Ciclo de Proyectos?",
+          a: [
+            "Oracle Fusion",
+            "Microsoft Power Platform",
+            "PEGA Platform"
+          ],
+          c: 2
+        },
+        {
+          q: "¿Cuántos componentes principales forman parte del alcance del Proyecto Atlas?",
+          a: [
+            "Cinco componentes",
+            "Tres componentes",
+            "Siete componentes"
+          ],
+          c: 0
+        },
+        {
+          q: "¿Cuál es el principal problema identificado con los datos del BCIE?",
+          a: [
+            "El BCIE no genera datos",
+            "El BCIE genera miles de datos cada día, pero tener datos no significa tener información",
+            "Todos los datos del BCIE ya están centralizados"
+          ],
+          c: 1
+        },
+        {
+          q: "¿Cuál es la plataforma propuesta para centralizar los datos del banco?",
+          a: [
+            "SharePoint",
+            "Power Automate",
+            "Databricks"
+          ],
+          c: 2
+        },
+        {
+          q: "¿Cuál es el reto relacionado con la ubicación de los datos del BCIE?",
+          a: [
+            "Los datos se encuentran en distintos lugares y sistemas",
+            "Los datos solamente se encuentran en finanzas",
+            "Los datos solamente existen en archivos físicos"
+          ],
+          c: 0
+        },
+        {
+          q: "¿Qué tecnología permite acceder directamente a los aplicativos internos sin establecer una conexión VPN?",
+          a: [
+            "AnyConnect VPN",
+            "Zero Trust Access (ZTA)",
+            "Microsoft Entra ID"
+          ],
+          c: 1
+        }
+      ],
+
+      // Preguntas de nivel: Medio 5 Puntos cada una.
+
+      medio: [
+        {
+          q: "¿Qué es una ficha de Accesos y Roles?",
+          a: [
+            "Un reporte de incidentes tecnológicos",
+            "Un listado de usuarios conectados",
+            "Un documento donde se definen roles, permisos, áreas responsables y perfiles"
+          ],
+          c: 2
+        },
+        {
+          q: "¿Quién podrá aprobar los accesos gestionados mediante AccessHub?",
+          a: [
+            "Jefaturas, responsables de aplicaciones o aprobadores definidos según el flujo",
+            "Únicamente el usuario que solicita el acceso",
+            "Cualquier colaborador del BCIE"
+          ],
+          c: 0
+        },
+        {
+          q: "¿Qué beneficios tendrá AccessHub para los usuarios?",
+          a: [
+            "Eliminar la necesidad de utilizar aplicaciones institucionales",
+            "Procesos más claros, mejor seguimiento de solicitudes y una administración más ordenada de permisos",
+            "Permitir acceso automático a todos los sistemas"
+          ],
+          c: 1
+        },
+        {
+          q: "¿Cuáles son las cuatro grandes iniciativas presentadas dentro de IA Lab 2026?",
+          a: [
+            "Copilot, Teams, Databricks y SharePoint",
+            "AtenIA, RPA Factory, Power BI y AccessHub",
+            "Democratizar IA, OPEX IA, AtenIA e IA Strategy"
+          ],
+          c: 2
+        },
+        {
+          q: "¿Qué solución utiliza IA para transformar documentos técnicos de cooperación en resúmenes públicos?",
+          a: [
+            "Agente IA para Generación de Documentos Públicos COPES",
+            "RPA Factory",
+            "AtenIA Marco Normativo"
+          ],
+          c: 0
+        },
+        {
+          q: "¿Para qué tipo de consulta se presenta una solución de IA dentro de AtenIA?",
+          a: [
+            "Para consultas de inventario",
+            "Para la consulta del Marco Normativo",
+            "Para consultas de vacaciones"
+          ],
+          c: 1
+        },
+        {
+          q: "¿Cuántos bots se indican como parte de RPA Factory?",
+          a: [
+            "12 bots",
+            "18 bots",
+            "24 bots"
+          ],
+          c: 2
+        },
+        {
+          q: "¿En qué solución de Oracle Fusion se gestionará el presupuesto institucional?",
+          a: [
+            "Enterprise Performance Management (EPM)",
+            "Contabilidad General (GL)",
+            "Cuentas por Pagar (AP)"
+          ],
+          c: 0
+        },
+        {
+          q: "¿Cuál de las siguientes actividades se realiza en el módulo de Contabilidad General (GL)?",
+          a: [
+            "Crear solicitudes de compra",
+            "Registrar y consolidar la información contable institucional",
+            "Registrar proveedores"
+          ],
+          c: 1
+        },
+        {
+          q: "¿Qué documento se genera en el proceso de compras para formalizar la adquisición de bienes o servicios a un proveedor?",
+          a: [
+            "Una conciliación bancaria",
+            "Un asiento de depreciación",
+            "Una orden de compra"
+          ],
+          c: 2
+        },
+        {
+          q: "¿Cuál es la finalidad de registrar a los proveedores en Oracle Fusion?",
+          a: [
+            "Administrar su información para los procesos de contratación, compras y pagos",
+            "Controlar la asistencia de los colaboradores",
+            "Elaborar el presupuesto anual"
+          ],
+          c: 0
+        },
+        {
+          q: "¿Cuál es la función principal del módulo de Cuentas por Cobrar (AR)?",
+          a: [
+            "Administrar las órdenes de compra",
+            "Gestionar las cuentas por cobrar y los cobros",
+            "Administrar el inventario de activos fijos"
+          ],
+          c: 1
+        },
+        {
+          q: "¿Cuáles son los cinco componentes que conforman el alcance del Proyecto Atlas?",
+          a: [
+            "Planeación, Desarrollo, Pruebas, Producción y Soporte",
+            "Datos, Seguridad, Usuarios, Reportes y Finanzas",
+            "Migración, Interfaz, Trazabilidad, Integración y Licenciamiento"
+          ],
+          c: 2
+        },
+        {
+          q: "¿Con qué sistemas institucionales clave deberá integrarse el nuevo aplicativo del Proyecto Atlas?",
+          a: [
+            "Con el PSD y el Hub de Aplicaciones",
+            "Con Microsoft Teams y Outlook",
+            "Con Databricks y Power BI exclusivamente"
+          ],
+          c: 0
+        },
+        {
+          q: "¿Cuál es el objetivo de implementar Databricks en el BCIE?",
+          a: [
+            "Reemplazar todos los sistemas institucionales",
+            "Reunir los datos del banco en un solo lugar para analizarlos de forma rápida y confiable",
+            "Administrar exclusivamente documentos de Word"
+          ],
+          c: 1
+        },
+        {
+          q: "Menciona tres funcionalidades que permitirá desarrollar Databricks.",
+          a: [
+            "Administrar correos, reuniones y calendarios",
+            "Gestionar impresoras, teléfonos y dispositivos",
+            "Almacenar y analizar datos, crear modelos de inteligencia artificial y construir dashboards"
+          ],
+          c: 2
+        },
+        {
+          q: "Además de analizar datos, ¿qué otras actividades permitirá realizar Databricks?",
+          a: [
+            "Crear modelos de inteligencia artificial, construir dashboards, automatizar procesos y compartir información",
+            "Únicamente almacenar archivos",
+            "Administrar las credenciales de todos los usuarios"
+          ],
+          c: 0
+        },
+        {
+          q: "¿Qué nombre debe seleccionarse para continuar utilizando la VPN tradicional?",
+          a: [
+            "BCIE Secure Access",
+            "BCIE Cisco SSE",
+            "BCIE Zero Trust"
+          ],
+          c: 1
+        }
+      ],
+
+      // Preguntas de nivel: Difícil 8 Puntos cada una.
+
+      dificil: [
+        {
+          q: "¿Cómo contribuirá AccessHub a la seguridad del Banco?",
+          a: [
+            "Permitiendo que todos los usuarios accedan a cualquier aplicación",
+            "Eliminando las revisiones de permisos",
+            "Otorgando accesos de forma controlada, con aprobaciones, trazabilidad y revisiones periódicas"
+          ],
+          c: 2
+        },
+        {
+          q: "¿Cuál es el propósito de la solución de IA aplicada a bases de licitación?",
+          a: [
+            "Realizar una revisión preliminar de las Bases de Licitación de Adquisiciones de Proyectos",
+            "Generar automáticamente órdenes de compra",
+            "Administrar los accesos de los usuarios"
+          ],
+          c: 0
+        },
+        {
+          q: "¿Qué analiza el Agente IA de Evaluación Preliminar de Casos de Supervisión?",
+          a: [
+            "Únicamente los datos financieros históricos",
+            "La situación de la operación conforme a la normativa asociada para generar un resultado estructurado",
+            "Los accesos y permisos de los usuarios"
+          ],
+          c: 1
+        },
+        {
+          q: "¿En qué tres conceptos se enfoca IA Strategy?",
+          a: [
+            "Seguridad, Infraestructura y Redes",
+            "Migración, Integración y Licenciamiento",
+            "Generación, Analítica y Predicción"
+          ],
+          c: 2
+        },
+        {
+          q: "¿Qué solución utiliza IA y un modelo financiero para automatizar proyecciones financieras?",
+          a: [
+            "Solución IA para Automatización del Modelo de Proyecciones Financieras",
+            "Agente IA para Marco Normativo",
+            "RPA Factory"
+          ],
+          c: 0
+        },
+        {
+          q: "¿Qué permite realizar la solución EPM en la gestión presupuestaria?",
+          a: [
+            "Registrar únicamente facturas de proveedores",
+            "Planificar, formular y dar seguimiento al presupuesto institucional",
+            "Administrar exclusivamente los activos fijos"
+          ],
+          c: 1
+        },
+        {
+          q: "¿Cuál de los siguientes procesos representa una integración entre diferentes módulos de Oracle Fusion?",
+          a: [
+            "Registrar asistencia y vacaciones de los colaboradores",
+            "Enviar correos electrónicos entre diferentes áreas",
+            "Crear una requisición, generar una orden de compra, registrar una factura y gestionar su pago"
+          ],
+          c: 2
+        },
+        {
+          q: "¿Qué busca mejorar el componente de Trazabilidad dentro del Ciclo de Proyectos?",
+          a: [
+            "El seguimiento de los procesos, con mayor control sobre actividades, estados y responsables de área",
+            "Únicamente el diseño visual del aplicativo",
+            "La administración de equipos tecnológicos"
+          ],
+          c: 0
+        },
+        {
+          q: "Además del licenciamiento BPM Pega, ¿qué otro elemento contempla el componente de Licenciamiento?",
+          a: [
+            "La compra de equipos de cómputo",
+            "La adquisición de servicios especializados",
+            "La contratación de enlaces de internet"
+          ],
+          c: 1
+        },
+        {
+          q: "¿Cómo ayudará la centralización y actualización de la información en Databricks a generar valor para el BCIE?",
+          a: [
+            "Eliminando la necesidad de analizar información",
+            "Almacenando información sin utilizarla",
+            "Permitiendo identificar tendencias, detectar problemas y tomar mejores decisiones"
+          ],
+          c: 2
+        },
+        {
+          q: "¿Por qué Databricks se considera más que una herramienta para almacenar datos?",
+          a: [
+            "Porque permite analizar datos, desarrollar modelos de IA, crear dashboards, automatizar procesos y compartir información",
+            "Porque únicamente reemplaza las bases de datos existentes",
+            "Porque administra accesos y permisos institucionales"
+          ],
+          c: 0
+        },
+        {
+          q: "Según el documento, ¿qué representa Databricks en la transformación de los datos del BCIE?",
+          a: [
+            "Un repositorio para almacenar documentos",
+            "El puente que convierte los datos en decisiones inteligentes",
+            "Una herramienta exclusiva para generar reportes financieros"
+          ],
+          c: 1
+        },
+        {
+          q: "¿Qué diferencia principal existe entre AnyConnect VPN y Zero Trust Access (ZTA)?",
+          a: [
+            "Ambos requieren establecer manualmente una conexión VPN",
+            "AnyConnect VPN permite acceso directo y ZTA requiere una VPN",
+            "AnyConnect VPN requiere establecer una conexión VPN, mientras ZTA permite acceder directamente a los aplicativos habilitados mediante un modelo de acceso seguro"
+          ],
+          c: 2
+        }
+      ]
+
+    };
+
+    // ===============================================================================================================
+    // Configuración de preguntas
+    // ===============================================================================================================
+
+    const pointsByLevel = {
+      facil: 2,
+      medio: 5,
+      dificil: 8
+    };
+
+    const dotsByLevel = {
+      facil: "●",
+      medio: "● ●",
+      dificil: "● ● ●"
+    };
+
+    const totalQuestions = 4;
+
+    let selectedLevel = null;
+    let score = 0;
+    let correctAnswers = 0;
+    let levelSummary = {
+      facil: 0,
+      medio: 0,
+      dificil: 0
+    };
+    let questionNumber = 0;
+    let answeredCount = 0;
+
+    let currentQuestion = null;
+
+    let used = {
+      facil: [],
+      medio: [],
+      dificil: []
+    };
+
+    let answered = false;
+    let feedbackTimer = null;
+
+
+    // =====================================
+    // Funciones Generales
+    // =====================================
+
+    const $ = id => document.getElementById(id);
+
+
+    function showScreen(id) {
+
+      document.querySelectorAll(".screen").forEach(s => {
+        s.classList.remove("active");
+      });
+
+      $(id).classList.add("active");
+    }
+
+
+    function updateScores() {
+
+      $("homeScore").textContent = `${score} Puntos`;
+      $("quizScore").textContent = `${score} Puntos`;
+
+    }
+
+
+    // =====================================
+    // Actualización de Progress Bar
+    // =====================================
+
+    function updateProgress() {
+
+      const percentage = (answeredCount / totalQuestions) * 100;
+
+      $("progressCount").textContent =
+        `${answeredCount}/${totalQuestions}`;
+
+      $("progressFill").style.width = `${percentage}%`;
+
+      $("finishBtn").disabled = answeredCount === 0;
+
+    }
+
+
+    // =====================================
+    // Selección de Dificultad
+    // =====================================
+
+    function chooseLevel(level) {
+
+      selectedLevel = level;
+
+      document.querySelectorAll(".level").forEach(btn => {
+
+        const active = btn.dataset.level === level;
+
+        btn.classList.toggle("selected", active);
+
+        btn.setAttribute("aria-pressed", String(active));
+
+      });
+
+      $("startBtn").disabled = false;
+
+    }
+
+
+    document.querySelectorAll(".level").forEach(btn => {
+
+      btn.addEventListener("click", () => {
+        chooseLevel(btn.dataset.level);
+      });
+
+    });
+
+
+    // =====================================
+    // Obtener preguntas aleatorias
+    // =====================================
+
+    function getRandomQuestion(level) {
+
+      const pool = questionBank[level];
+
+      if (used[level].length === pool.length) {
+        used[level] = [];
+      }
+
+      const available = pool
+        .map((_, i) => i)
+        .filter(i => !used[level].includes(i));
+
+      const index = available[
+        Math.floor(Math.random() * available.length)
+      ];
+
+      used[level].push(index);
+
+      return pool[index];
+
+    }
+
+    // =====================================
+    // Iniciar Pregunta
+    // =====================================
+
+    function updateFinalResult() {
+
+      const resultIcon = document.querySelector("#resultIcon use");
+
+      if (score >= 2) {
+
+        resultIcon.setAttribute(
+          "href",
+          "#icon-trophy"
+        );
+
+        showCelebration();
+
+      } else {
+
+        resultIcon.setAttribute(
+          "href",
+          "#icon-sad"
+        );
+
+        document.getElementById(
+          "celebrationLayer"
+        ).innerHTML = "";
+      }
+
+      $("difficultySummary").innerHTML = `
+
+F <span class="summary-value">
+${levelSummary.facil}
+</span>
+
+•
+
+M <span class="summary-value">
+${levelSummary.medio}
+</span>
+
+•
+
+D <span class="summary-value">
+${levelSummary.dificil}
+</span>
+
+`;
+
+
+      animateScore(score);
+
+      function animateScore(finalValue) {
+
+        let current = 0;
+
+        const duration = 1500;
+
+        const steps = 40;
+
+        const increment =
+          finalValue / steps;
+
+        const interval =
+          duration / steps;
+
+        const counter = setInterval(() => {
+
+          current += increment;
+
+          if (current >= finalValue) {
+
+            current = finalValue;
+
+            clearInterval(counter);
+
+          }
+
+          $("finalScore").textContent =
+            `${Math.round(current)} Puntos`;
+
+        }, interval);
+
+      }
+
+    }
+
+    function startQuestion() {
+      $("backBtn").disabled = false;
+      if (answeredCount >= totalQuestions) {
+        finishGame();
+        return;
+      }
+
+      currentQuestion = getRandomQuestion(selectedLevel);
+
+      questionNumber++;
+
+      answered = false;
+      $("backBtn").disabled = false;
+      $("levelDots").textContent = dotsByLevel[selectedLevel];
+
+      $("questionCount").textContent =
+        `Pregunta ${questionNumber}`;
+
+      $("questionText").textContent = currentQuestion.q;
+
+      $("answers").innerHTML = "";
+
+
+      currentQuestion.a.forEach((answer, index) => {
+
+        const button = document.createElement("button");
+
+        button.className = "answer";
+
+        button.textContent =
+          `${String.fromCharCode(65 + index)}) ${answer}`;
+
+        button.addEventListener("click", () => {
+          selectAnswer(index, button);
+        });
+
+        $("answers").appendChild(button);
+
+      });
+
+
+      updateScores();
+
+      showScreen("quiz");
+
+    }
+
+
+    // =====================================
+    // BOTÓN REGRESAR
+    // =====================================
+
+    const backBtn = $("backBtn");
+
+    backBtn.addEventListener("click", () => {
+
+      if (answered) {
+        return;
+      }
+
+      clearTimeout(feedbackTimer);
+
+      $("feedback").classList.remove("show");
+
+      showScreen("home");
+
+    });
+
+
+    // =====================================
+    // SELECCIONAR RESPUESTA
+    // =====================================
+
+    function selectAnswer(index, button) {
+
+      if (answered) return;
+
+      answered = true;
+
+      // Bloquear el botón regresar
+      $("backBtn").disabled = true;
+
+      // Contabilizar cualquier respuesta
+      answeredCount++;
+
+      const correct = index === currentQuestion.c;
+
+
+      // Bloquear respuestas y mostrar resultado visual
+
+      document.querySelectorAll(".answer:not(.back-btn)").forEach((el, i) => {
+
+        el.disabled = true;
+
+        if (i === currentQuestion.c) {
+
+          el.classList.add("correct");
+
+        } else if (i === index) {
+
+          el.classList.add("wrong");
+
+        }
+
+      });
+
+      // Sumar puntos solamente si es correcta
+
+      if (correct) {
+        score += pointsByLevel[selectedLevel];
+        correctAnswers++;
+
+        levelSummary[selectedLevel] +=
+          pointsByLevel[selectedLevel];
+
+        updateCorrectCounter();
+      }
+
+      // Actualizar puntaje y progreso
+
+      updateScores();
+
+      updateProgress();
+
+      // Preparar información del modal
+
+      const icon =
+        document.getElementById("feedbackIcon");
+
+      const feedbackSvg =
+        document.querySelector("#feedbackSvg use");
+
+      if (correct) {
+
+        $("feedbackTitle").textContent =
+          "¡Felicidades!";
+
+        $("feedbackText").textContent =
+          "¡Tu respuesta fue correcta!";
+
+        feedbackSvg.setAttribute(
+          "href",
+          "#icon-success"
+        );
+
+        icon.className =
+          "feedback-icon success";
+
+      } else {
+
+        $("feedbackTitle").textContent =
+          "¡Respuesta incorrecta!";
+
+        $("feedbackText").textContent =
+          "La respuesta correcta era: " +
+          currentQuestion.a[currentQuestion.c];
+
+        feedbackSvg.setAttribute(
+          "href",
+          "#icon-error"
+        );
+
+        icon.className =
+          "feedback-icon error";
+      }
+      $("feedbackPoints").textContent = correct
+        ? `+${pointsByLevel[selectedLevel]} Puntos`
+        : "+0 Puntos";
+
+
+      // Cambiar texto del botón en la última pregunta
+
+      $("continueBtn").textContent =
+        answeredCount >= totalQuestions
+          ? "Ver resultados"
+          : "Continuar";
+
+
+      // Esperar 1.5 segundos antes de mostrar el modal
+
+      feedbackTimer = setTimeout(() => {
+
+        $("feedback").classList.add("show");
+
+      }, 1500);
+
+    }
+
+    // =====================================
+    // Comenzar Trivia
+    // =====================================
+
+    $("startBtn").addEventListener("click", () => {
+
+      if (selectedLevel) {
+        startQuestion();
+      }
+
+    });
+
+
+    // =====================================
+    // Continuar / Finalizar Partida
+    // =====================================
+
+    $("continueBtn").addEventListener("click", () => {
+
+      $("feedback").classList.remove("show");
+
+      // Si respondió las cinco preguntas,
+      // finalizar automáticamente.
+
+      if (answeredCount >= totalQuestions) {
+
+        updateFinalResult();
+        celebrate();
+        showScreen("finished");
+        clearTimeout(feedbackTimer);
+
+        return;
+
+      }
+
+      // Si todavía quedan preguntas,
+      // regresar a la pantalla principal.
+      $("backBtn").disabled = false;
+      showScreen("home");
+
+      updateScores();
+
+      updateProgress();
+
+    });
+
+
+    // =====================================
+    // Finalizar Juego Manualmente
+    // =====================================
+
+    function finishGame() {
+      $("endScoreNumber").textContent =
+        score;
+      $("endModal").classList.add("show");
+
+    }
+
+    $("finishBtn").addEventListener("click", finishGame);
+    $("closeEndBtn").addEventListener("click", () => {
+      $("endModal").classList.remove("show");
+      updateFinalResult();
+      showScreen("finished");
+    });
+
+    // =====================================
+    // Nueva Partida
+    // =====================================
+
+    $("newGameBtn").addEventListener("click", () => {
+
+      // Reiniciar variables
+
+      score = 0;
+
+      questionNumber = 0;
+
+      answeredCount = 0;
+
+      selectedLevel = null;
+
+      currentQuestion = null;
+
+      answered = false;
+
+      clearTimeout(feedbackTimer);
+
+      correctAnswers = 0;
+
+      levelSummary = {
+
+        facil: 0,
+
+        medio: 0,
+
+        dificil: 0
+
+      };
+
+      updateCorrectCounter();
+
+
+      // Reiniciar preguntas utilizadas
+
+      used = {
+        facil: [],
+        medio: [],
+        dificil: []
+      };
+
+
+      // Reiniciar selección de dificultad
+
+      document.querySelectorAll(".level").forEach(b => {
+
+        b.classList.remove("selected");
+
+        b.setAttribute("aria-pressed", "false");
+
+      });
+
+      // Reiniciar botón de inicio
+
+      $("startBtn").disabled = true;
+
+
+      // Reiniciar interfaz
+
+      $("feedback").classList.remove("show");
+
+      $("endModal").classList.remove("show");
+
+      updateScores();
+
+      updateProgress();
+
+      showScreen("home");
+
+    });
+
+
+    // =====================================
+    // Inicializar Interfaz
+    // =====================================
+
+    updateScores();
+
+    updateProgress();
+
+    function celebrate() {
+
+      const container =
+        document.getElementById(
+          "celebration"
+        );
+
+      container.innerHTML = "";
+
+      for (let i = 0; i < 30; i++) {
+
+        const spark =
+          document.createElement("div");
+
+        spark.className = "spark";
+
+        spark.style.left =
+          Math.random() * 100 + "%";
+
+        spark.style.top =
+          55 + Math.random() * 25 + "%";
+
+        spark.style.background =
+          [
+            "#FFFFFF",
+            "#4B8FFF",
+            "#8AD8FF"
+          ][Math.floor(Math.random() * 3)];
+
+        spark.style.animationDelay =
+          Math.random() * .5 + "s";
+
+        container.appendChild(spark);
+      }
+    }
+
+    function showCelebration() {
+
+      const layer =
+        document.getElementById(
+          "celebrationLayer"
+        );
+
+      layer.innerHTML = "";
+
+      for (let i = 0; i < 80; i++) {
+
+        const particle =
+          document.createElement("div");
+
+        particle.className =
+          "celebration-particle";
+
+        particle.style.left =
+          Math.random() * 100 + "%";
+
+        particle.style.bottom =
+          "-30px";
+
+        particle.style.background =
+          [
+            "#FFFFFF",
+            "#4B8FFF",
+            "#8AD8FF",
+            "#DCEAFF"
+          ][Math.floor(Math.random() * 4)];
+
+        particle.style.animationDelay =
+          Math.random() * 2 + "s";
+
+        particle.style.animationDuration =
+          (3 + Math.random() * 3) + "s";
+
+        layer.appendChild(
+          particle
+        );
+      }
+    }
+
+    function updateCorrectCounter() {
+
+      $("correctCounter")
+        .textContent =
+        correctAnswers;
+
+    }
+
+  </script>
+
+</body>
+
+</html>
